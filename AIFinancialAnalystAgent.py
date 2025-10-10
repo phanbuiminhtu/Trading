@@ -20,7 +20,7 @@ def configure_api():
     """
     try:
         # Thay thế "YOUR_API_KEY" bằng khóa API thực của bạn
-        api_key = "AIzaSyDvebfu5lTsbyza9G7IhSrEDGKImDOtUFg"
+        api_key = "YOUR_API_KEY"
         if not api_key or api_key == "YOUR_API_KEY":
             print("ERROR: GOOGLE_API_KEY is not set or is a placeholder.")
             print("Please set your API key to proceed.")
@@ -356,4 +356,5 @@ def main(symbol: str):
 if __name__ == '__main__':
     # <<< THAY ĐỔI MÃ CỔ PHIẾU BẠN MUỐN PHÂN TÍCH TẠI ĐÂY >>>
     # Đảm bảo bạn có file "FPT_1D.csv" trong cùng thư mục
+
     main("VRE")
