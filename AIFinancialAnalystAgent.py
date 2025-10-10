@@ -6,6 +6,7 @@ from IPython.display import display, Markdown
 from getData import fetch_from_vnstock
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
+import os
 
 # Thư viện mới để vẽ biểu đồ và xử lý ảnh
 import matplotlib.pyplot as plt
@@ -20,7 +21,7 @@ def configure_api():
     """
     try:
         # Thay thế "YOUR_API_KEY" bằng khóa API thực của bạn
-        api_key = "YOUR_API_KEY"
+        api_key = "AIzaSyCrCqk-h91AKpQLm0r1qQ89s1ZVg0VxZOU"
         if not api_key or api_key == "YOUR_API_KEY":
             print("ERROR: GOOGLE_API_KEY is not set or is a placeholder.")
             print("Please set your API key to proceed.")
@@ -151,105 +152,116 @@ def agent_analyze_financials(model, financial_data_dict: dict, technical_analysi
     # --- Phân tích các báo cáo tài chính (đã rút gọn cho dễ đọc) ---
     print("   [1/4] Phân tích Báo cáo kết quả kinh doanh...")
     income_df_str = financial_data_dict['income_statement'].to_string()
-    prompt1 = f"""Bạn là chuyên gia phân tích tài chính chuyên về doanh nghiệp bất động sản Việt Nam.  
-        Tôi sẽ cung cấp dữ liệu Báo cáo kết quả kinh doanh (Income Statement) của {symbol}, một doanh nghiệp BĐS:
+    prompt1 = f"""Bạn là chuyên gia phân tích tài chính chuyên về ngành ngân hàng Việt Nam.  
+        Tôi sẽ cung cấp dữ liệu **Báo cáo kết quả kinh doanh (Income Statement)** của một ngân hàng thương mại:
 
         {income_df_str}
 
         Hãy phân tích theo hướng:
-        1. **Hiệu quả hoạt động kinh doanh**: xu hướng doanh thu, lợi nhuận gộp, lợi nhuận thuần qua các năm.  
-        2. **Cấu trúc lợi nhuận**: mức độ phụ thuộc vào thu nhập tài chính, chi phí lãi vay, lợi nhuận khác.  
-        3. **Biên lợi nhuận**:  
-        - Biên lợi nhuận gộp = Lãi gộp / Doanh thu thuần.  
-        - Biên lợi nhuận ròng = Lợi nhuận sau thuế / Doanh thu thuần.  
-        4. **Tăng trưởng và ổn định lợi nhuận**: tốc độ tăng trưởng doanh thu & lợi nhuận; biến động có ổn định không?  
-        5. **Nhận xét theo đặc thù doanh nghiệp BĐS**:  
-        - Lợi nhuận có đến từ bàn giao dự án hay chủ yếu từ tài chính?  
-        - Chu kỳ lợi nhuận có bị gián đoạn theo dự án không?  
-        6. **Kết luận ngắn gọn**:  
-        - Hiệu quả kinh doanh: mạnh / trung bình / yếu.  
-        - Lợi nhuận có bền vững không?  
+        1. **Tăng trưởng hoạt động kinh doanh**  
+        - Tốc độ tăng trưởng thu nhập lãi thuần và ngoài lãi qua các năm.  
+        - Đánh giá nguồn lợi nhuận chính đến từ đâu: chênh lệch lãi suất (NIM), phí dịch vụ, hay hoạt động đầu tư?
+
+        2. **Chất lượng lợi nhuận**  
+        - Tỷ trọng thu nhập lãi thuần / tổng thu nhập hoạt động.  
+        - Biến động chi phí dự phòng rủi ro tín dụng – có ảnh hưởng mạnh đến lợi nhuận không?  
+        - Mức chi phí hoạt động / tổng thu nhập (Cost-to-Income ratio).
+
+        3. **Hiệu quả hoạt động và xu hướng sinh lời**  
+        - Lợi nhuận trước thuế, sau thuế, và biên lợi nhuận ròng.  
+        - So sánh tốc độ tăng lợi nhuận và doanh thu.  
+        - Xu hướng tăng trưởng có ổn định không?
+
+        4. **Đặc thù ngành ngân hàng**  
+        - Nếu lợi nhuận tăng mạnh: có đến từ tín dụng, đầu tư chứng khoán, hay dịch vụ phí?  
+        - Nhận xét rủi ro tiềm ẩn nếu chi phí dự phòng thấp bất thường hoặc thu nhập ngoài lãi chiếm tỷ trọng cao.
+
+        5. **Kết luận**  
+        - Hiệu quả kinh doanh: mạnh / ổn định / yếu.  
+        - Cấu trúc thu nhập có bền vững không?
 
         Đầu ra mong muốn:
-        - Bảng tóm tắt theo từng năm.  
-        - Diễn giải xu hướng rõ ràng, ngắn gọn, có logic.  
-        - Phong cách báo cáo phân tích đầu tư chuyên nghiệp.
+        - Bảng và đoạn tóm tắt xu hướng từng năm.  
+        - Phong cách báo cáo phân tích đầu tư chuyên nghiệp, khách quan.
     """
 
     all_analyses.append(f"### 1. Phân tích Kết quả Kinh doanh\n{model.generate_content(prompt1).text}")
 
     print("   [2/4] Phân tích Bảng cân đối kế toán...")
     balance_df_str = financial_data_dict['balance_sheet'].to_string()
-    prompt2 = f"""Bạn là chuyên gia phân tích tài chính chuyên về doanh nghiệp bất động sản Việt Nam.  
-        Tôi sẽ cung cấp dữ liệu **Bảng cân đối kế toán (Balance Sheet)** của doanh nghiệp {symbol}:
+    prompt2 = f"""Bạn là chuyên gia phân tích tài chính chuyên về ngành ngân hàng Việt Nam.  
+        Tôi sẽ cung cấp dữ liệu **Bảng cân đối kế toán (Balance Sheet)** của một ngân hàng thương mại:
 
         {balance_df_str}
 
-        Hãy phân tích tập trung vào:
-        1. **Cơ cấu tài sản và nợ**: tỷ trọng tài sản ngắn hạn / dài hạn; nợ phải trả / vốn chủ sở hữu.  
-        2. **Phân tích nợ vay**:  
-        - So sánh nợ ngắn hạn vs nợ dài hạn.  
-        - Mức độ phụ thuộc vào vay ngắn hạn.  
-        - Rủi ro thanh khoản và tái cấp vốn.  
-        3. **Đánh giá hàng tồn kho và dự án**:  
-        - Tỷ trọng hàng tồn kho trong tổng tài sản.  
-        - Tồn kho tăng do mở rộng dự án hay do chậm tiêu thụ?  
-        - “Người mua trả tiền trước” → phản ánh tiến độ bán dự án.  
-        4. **Khả năng thanh toán và dòng tiền**:  
-        - Hệ số thanh toán hiện hành = Tài sản ngắn hạn / Nợ ngắn hạn.  
-        - Hệ số thanh toán nhanh = (Tài sản ngắn hạn – Hàng tồn kho) / Nợ ngắn hạn.  
-        5. **Đòn bẩy tài chính**: xu hướng tỷ lệ nợ/vốn chủ, rủi ro lãi suất.  
-        6. **Tổng hợp đánh giá**:  
-        - Cấu trúc tài chính an toàn, cân bằng hay rủi ro cao?  
-        - Doanh nghiệp đang mở rộng, ổn định hay thu hẹp quy mô đầu tư?
+        Hãy phân tích theo hướng:
+        1. **Cấu trúc tài sản**  
+        - Tỷ trọng cho vay khách hàng, đầu tư chứng khoán, và tiền gửi tại NHNN.  
+        - Xu hướng tăng trưởng tín dụng (cho vay) qua các năm.  
+        - Mức độ tập trung tín dụng – có dấu hiệu tăng rủi ro không?
+
+        2. **Cấu trúc nguồn vốn**  
+        - Tỷ trọng tiền gửi khách hàng / tổng nguồn vốn.  
+        - Mức phụ thuộc vào vốn vay liên ngân hàng hoặc phát hành giấy tờ có giá.  
+        - Đánh giá tính ổn định của nguồn vốn huy động.
+
+        3. **Chất lượng tài sản & dự phòng rủi ro**  
+        - So sánh tăng trưởng cho vay và dự phòng rủi ro.  
+        - Tỷ lệ dự phòng / dư nợ cho vay (ước tính).  
+        - Có dấu hiệu nợ xấu tăng không?
+
+        4. **Thanh khoản và an toàn vốn**  
+        - Tỷ lệ vốn chủ sở hữu / tổng tài sản.  
+        - Xu hướng tăng/giảm vốn điều lệ.  
+        - Nhận xét khả năng duy trì an toàn vốn (CAR – nếu có dữ liệu).
+
+        5. **Kết luận tổng thể**  
+        - Cấu trúc tài chính an toàn hay rủi ro?  
+        - Ngân hàng đang trong giai đoạn mở rộng tín dụng, củng cố vốn hay thu hẹp bảng cân đối?
 
         Đầu ra mong muốn:
-        - Bảng hoặc đoạn tóm tắt theo từng năm.  
-        - Biểu đồ hoặc mô tả xu hướng (nếu có thể).  
-        - Giọng văn khách quan, phong cách phân tích đầu tư chuyên nghiệp.
+        - Tóm tắt theo từng năm.  
+        - Biểu đồ hoặc mô tả xu hướng nếu có thể.  
+        - Giọng văn khách quan, chuyên nghiệp.
     """
 
     all_analyses.append(f"### 2. Phân tích Bảng cân đối kế toán\n{model.generate_content(prompt2).text}")
 
     print("   [3/4] Phân tích Báo cáo lưu chuyển tiền tệ...")
     cash_flow_df_str = financial_data_dict['cash_flow'].to_string()
-    prompt3 = f"""Bạn là chuyên gia phân tích tài chính chuyên về doanh nghiệp bất động sản Việt Nam.  
-        Tôi sẽ cung cấp cho bạn dữ liệu **Báo cáo lưu chuyển tiền tệ (Cash Flow Statement)** của {symbol}, một doanh nghiệp BĐS:
+    prompt3 = f"""Bạn là chuyên gia phân tích tài chính chuyên về ngân hàng.  
+        Tôi sẽ cung cấp dữ liệu **Báo cáo lưu chuyển tiền tệ (Cash Flow Statement)** của một ngân hàng thương mại:
 
         {cash_flow_df_str}
 
         Hãy phân tích theo hướng:
-        1. **Dòng tiền hoạt động kinh doanh (Operating Cash Flow – OCF)**  
-        - So sánh xu hướng OCF qua các năm: dương hay âm?  
-        - Nếu OCF âm kéo dài, nguyên nhân là gì (tăng tồn kho, phải thu, hay lợi nhuận không chuyển thành tiền)?  
-        - Đối với doanh nghiệp BĐS, lưu ý: OCF có thể âm trong giai đoạn đầu tư dự án – hãy đánh giá tính chu kỳ này.
+        1. **Dòng tiền từ hoạt động kinh doanh (Operating Cash Flow – OCF)**  
+        - Xu hướng OCF qua các năm – dương hay âm?  
+        - Nếu âm, nguyên nhân là do tăng cho vay, giảm huy động, hay lợi nhuận kế toán không chuyển thành tiền?  
+        - OCF có ổn định không khi so với lợi nhuận sau thuế?
 
         2. **Dòng tiền đầu tư (Investing Cash Flow – ICF)**  
-        - Phân tích chi cho mua TSCĐ, đầu tư dự án, hoặc đầu tư tài chính.  
-        - Có dấu hiệu **mở rộng đầu tư** (chi ra nhiều) hay **thu hẹp/quay vòng vốn** (thu hồi đầu tư, thanh lý tài sản)?  
-        - Nhận xét về tính hợp lý giữa dòng tiền đầu tư và chiến lược phát triển doanh nghiệp.
+        - Các khoản chi đầu tư chứng khoán, cơ sở vật chất, hoặc đầu tư dài hạn.  
+        - Ngân hàng đang mở rộng đầu tư hay thu hồi vốn?
 
         3. **Dòng tiền tài chính (Financing Cash Flow – FCF)**  
-        - Phân tích nguồn tiền đến từ vay nợ, phát hành cổ phiếu, và chi ra cho trả nợ, trả cổ tức.  
-        - Doanh nghiệp có phụ thuộc nhiều vào **dòng tiền vay nợ** không?  
-        - Dòng tiền tài chính dương do vay mới hay do huy động vốn cổ phần?
+        - Phân tích nguồn huy động từ cổ phiếu, giấy tờ có giá, hoặc vay liên ngân hàng.  
+        - Xu hướng chi trả cổ tức và trả nợ.  
+        - Đánh giá sự phụ thuộc vào nguồn vốn bên ngoài.
 
-        4. **Tổng hợp và đánh giá dòng tiền thuần (Net Cash Flow)**  
-        - Tiền và tương đương tiền cuối kỳ có xu hướng tăng hay giảm?  
-        - Dòng tiền có phản ánh đúng lợi nhuận kế toán không (lợi nhuận cao nhưng tiền âm)?  
-        - Đánh giá **khả năng trả nợ và duy trì thanh khoản** trong bối cảnh thị trường BĐS chậm.
+        4. **Khả năng tạo dòng tiền thật và thanh khoản**  
+        - So sánh OCF với lợi nhuận ròng.  
+        - Tiền cuối kỳ tăng hay giảm, có đảm bảo thanh khoản ngắn hạn không?  
+        - Nhận xét tính bền vững của dòng tiền.
 
-        5. **Kết luận theo đặc thù BĐS**  
-        - Doanh nghiệp đang ở giai đoạn: mở rộng dự án / thu hồi vốn / tái cơ cấu nợ.  
-        - Dòng tiền có lành mạnh không?  
-        - Rủi ro tiềm ẩn về thanh khoản hoặc đòn bẩy vốn ngắn hạn?
+        5. **Kết luận tổng thể**  
+        - Dòng tiền lành mạnh / trung bình / rủi ro.  
+        - Ngân hàng đang ở giai đoạn mở rộng, ổn định hay điều chỉnh bảng cân đối?
 
         Đầu ra mong muốn:
-        - Bảng hoặc đoạn tóm tắt cho từng năm.  
-        - Phân tích rõ nguyên nhân chính ảnh hưởng đến từng loại dòng tiền.  
-        - Biểu đồ xu hướng 3 dòng tiền (hoạt động – đầu tư – tài chính) nếu có thể.  
-        - Phong cách báo cáo phân tích đầu tư chuyên nghiệp, khách quan.
-    """
+        - Tóm tắt từng năm.  
+        - Giọng văn khách quan, chuyên nghiệp.
+        """
 
     all_analyses.append(f"### 3. Phân tích Lưu chuyển tiền tệ\n{model.generate_content(prompt3).text}")
 
@@ -323,38 +335,65 @@ def agent_generate_investment_summary(model, analysis_report: str, symbol: str) 
 # --- 3. MAIN ORCHESTRATION ---
 
 def main(symbol: str):
-    # (Hàm này không thay đổi)
     stock_symbol_to_analyze = symbol
-    print("--- Bắt đầu Phân tích Cổ phiếu Toàn diện ---")
+    lines = []
+
+    # --- 1. HEADER ---
+    lines.append("--- Bắt đầu Phân tích Cổ phiếu Toàn diện ---")
+    lines.append("")
+
     model = configure_api()
-    if model is None: return
+    if model is None:
+        return
 
     financial_data_dictionary = agent_gather_data(stock_symbol_to_analyze)
-    if not financial_data_dictionary: return
+    if not financial_data_dictionary:
+        return
 
     technical_report = agent_technical_analysis(model, stock_symbol_to_analyze)
-    if "Lỗi" in technical_report and "Không tìm thấy file" not in technical_report: return
+    if "Lỗi" in technical_report and "Không tìm thấy file" not in technical_report:
+        return
 
     detailed_analysis = agent_analyze_financials(model, financial_data_dictionary, technical_report, stock_symbol_to_analyze)
-    if "Lỗi" in detailed_analysis: return
+    if "Lỗi" in detailed_analysis:
+        return
 
     investment_summary = agent_generate_investment_summary(model, detailed_analysis, stock_symbol_to_analyze)
-    if "Lỗi" in investment_summary: return
+    if "Lỗi" in investment_summary:
+        return
 
-    # --- 4. DISPLAY FINAL RESULTS ---
-    print("\n\n==================================================")
-    print("          BÁO CÁO PHÂN TÍCH TOÀN DIỆN")
-    print("==================================================\n")
-    display(detailed_analysis)
+    # --- 2. ADD SECTIONS ---
+    lines.append("==================================================")
+    lines.append("          BÁO CÁO PHÂN TÍCH TOÀN DIỆN")
+    lines.append("==================================================")
+    lines.append("")  # thêm dòng trống
+    lines.append(str(detailed_analysis).replace("\\n", "\n"))  # ép xuống dòng nếu có chuỗi \n
 
-    print("\n\n==================================================")
-    print("         TÓM TẮT TỪ CỐ VẤN ĐẦU TƯ")
-    print("==================================================\n")
-    display(investment_summary)
+    lines.append("")
+    lines.append("==================================================")
+    lines.append("         TÓM TẮT TỪ CỐ VẤN ĐẦU TƯ")
+    lines.append("==================================================")
+    lines.append("")  # dòng trống
+    lines.append(str(investment_summary).replace("\\n", "\n"))
+
+    # --- 3. TẠO FOLDER RESULT ---
+    os.makedirs("result", exist_ok=True)
+
+    # --- 4. THÊM NGÀY HIỆN TẠI VÀO TÊN FILE ---
+    today = datetime.now().strftime("%Y-%m-%d")
+    output_path = os.path.join("result", f"{stock_symbol_to_analyze}_report_{today}.txt")
+
+    # --- 5. GHI FILE VỚI XUỐNG DÒNG RÕ RÀNG ---
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.write("\n".join(lines) + "\n")
+
+    print(f"✅ Báo cáo đã được lưu tại: {output_path}")
+
+
 
 
 if __name__ == '__main__':
     # <<< THAY ĐỔI MÃ CỔ PHIẾU BẠN MUỐN PHÂN TÍCH TẠI ĐÂY >>>
     # Đảm bảo bạn có file "FPT_1D.csv" trong cùng thư mục
 
-    main("VRE")
+    main("VPB")

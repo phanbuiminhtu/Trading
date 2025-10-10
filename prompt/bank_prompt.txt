@@ -1,5 +1,5 @@
 prompt1 = f"""Bạn là chuyên gia phân tích tài chính chuyên về ngành ngân hàng Việt Nam.  
-Tôi sẽ cung cấp dữ liệu **Báo cáo kết quả kinh doanh (Income Statement)** của một ngân hàng thương mại, gồm các cột:
+Tôi sẽ cung cấp dữ liệu **Báo cáo kết quả kinh doanh (Income Statement)** của một ngân hàng thương mại:
 
 {income_df_str}
 
@@ -32,7 +32,7 @@ Hãy phân tích theo hướng:
 """
 
 prompt2 = f"""Bạn là chuyên gia phân tích tài chính chuyên về ngành ngân hàng Việt Nam.  
-Tôi sẽ cung cấp dữ liệu **Bảng cân đối kế toán (Balance Sheet)** của một ngân hàng thương mại, gồm các cột:
+Tôi sẽ cung cấp dữ liệu **Bảng cân đối kế toán (Balance Sheet)** của một ngân hàng thương mại:
 
 {balance_df_str}
 
@@ -68,7 +68,7 @@ Hãy phân tích theo hướng:
 """
 
 prompt3 = f"""Bạn là chuyên gia phân tích tài chính chuyên về ngân hàng.  
-Tôi sẽ cung cấp dữ liệu **Báo cáo lưu chuyển tiền tệ (Cash Flow Statement)** của một ngân hàng thương mại, gồm các cột:
+Tôi sẽ cung cấp dữ liệu **Báo cáo lưu chuyển tiền tệ (Cash Flow Statement)** của một ngân hàng thương mại:
 
 {cash_flow_df_str}
 
