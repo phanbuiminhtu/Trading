@@ -21,7 +21,7 @@ def configure_api():
     """
     try:
         # Thay thế "YOUR_API_KEY" bằng khóa API thực của bạn
-        api_key = "AIzaSyCrCqk-h91AKpQLm0r1qQ89s1ZVg0VxZOU"
+        api_key = "YOUR_API_KEY"
         if not api_key or api_key == "YOUR_API_KEY":
             print("ERROR: GOOGLE_API_KEY is not set or is a placeholder.")
             print("Please set your API key to proceed.")
@@ -152,116 +152,116 @@ def agent_analyze_financials(model, financial_data_dict: dict, technical_analysi
     # --- Phân tích các báo cáo tài chính (đã rút gọn cho dễ đọc) ---
     print("   [1/4] Phân tích Báo cáo kết quả kinh doanh...")
     income_df_str = financial_data_dict['income_statement'].to_string()
-    prompt1 = f"""Bạn là chuyên gia phân tích tài chính chuyên về ngành ngân hàng Việt Nam.  
-        Tôi sẽ cung cấp dữ liệu **Báo cáo kết quả kinh doanh (Income Statement)** của một ngân hàng thương mại:
+    prompt1 = f"""Bạn là chuyên gia phân tích tài chính chuyên về ngành chứng khoán Việt Nam.  
+Tôi sẽ cung cấp cho bạn dữ liệu **Báo cáo kết quả kinh doanh (Income Statement)** của một công ty chứng khoán, gồm các cột:
 
-        {income_df_str}
+{income_df_str}
 
-        Hãy phân tích theo hướng:
-        1. **Tăng trưởng hoạt động kinh doanh**  
-        - Tốc độ tăng trưởng thu nhập lãi thuần và ngoài lãi qua các năm.  
-        - Đánh giá nguồn lợi nhuận chính đến từ đâu: chênh lệch lãi suất (NIM), phí dịch vụ, hay hoạt động đầu tư?
+Hãy phân tích theo hướng:
+1. **Hiệu quả hoạt động kinh doanh chính**  
+   - Cơ cấu doanh thu: môi giới, cho vay margin, tự doanh, dịch vụ tư vấn.  
+   - Đóng góp của từng mảng vào tổng doanh thu và lợi nhuận.
 
-        2. **Chất lượng lợi nhuận**  
-        - Tỷ trọng thu nhập lãi thuần / tổng thu nhập hoạt động.  
-        - Biến động chi phí dự phòng rủi ro tín dụng – có ảnh hưởng mạnh đến lợi nhuận không?  
-        - Mức chi phí hoạt động / tổng thu nhập (Cost-to-Income ratio).
+2. **Phân tích mảng tự doanh**  
+   - Xu hướng lãi/lỗ tự doanh qua các năm — có biến động mạnh theo thị trường không?  
+   - Nhận xét tính ổn định và rủi ro của lợi nhuận tự doanh.  
+   - So sánh lợi nhuận tự doanh với lợi nhuận hoạt động chính.
 
-        3. **Hiệu quả hoạt động và xu hướng sinh lời**  
-        - Lợi nhuận trước thuế, sau thuế, và biên lợi nhuận ròng.  
-        - So sánh tốc độ tăng lợi nhuận và doanh thu.  
-        - Xu hướng tăng trưởng có ổn định không?
+3. **Biên lợi nhuận và chi phí hoạt động**  
+   - Biên lợi nhuận gộp và ròng.  
+   - Chi phí hoạt động và chi phí tài chính có tăng nhanh hơn doanh thu không?  
+   - Đánh giá hiệu quả quản trị chi phí (Cost-to-Income ratio).
 
-        4. **Đặc thù ngành ngân hàng**  
-        - Nếu lợi nhuận tăng mạnh: có đến từ tín dụng, đầu tư chứng khoán, hay dịch vụ phí?  
-        - Nhận xét rủi ro tiềm ẩn nếu chi phí dự phòng thấp bất thường hoặc thu nhập ngoài lãi chiếm tỷ trọng cao.
+4. **Tăng trưởng và ổn định lợi nhuận**  
+   - Xu hướng tăng trưởng doanh thu và lợi nhuận sau thuế.  
+   - Ảnh hưởng của thị trường chứng khoán (VN-Index, thanh khoản thị trường) đến kết quả kinh doanh.
 
-        5. **Kết luận**  
-        - Hiệu quả kinh doanh: mạnh / ổn định / yếu.  
-        - Cấu trúc thu nhập có bền vững không?
+5. **Kết luận**  
+   - Công ty chứng khoán có đang phụ thuộc nhiều vào tự doanh hay hoạt động cốt lõi?  
+   - Mức độ ổn định lợi nhuận trong các chu kỳ thị trường khác nhau.
 
-        Đầu ra mong muốn:
-        - Bảng và đoạn tóm tắt xu hướng từng năm.  
-        - Phong cách báo cáo phân tích đầu tư chuyên nghiệp, khách quan.
-    """
+Đầu ra mong muốn:
+- Bảng tóm tắt theo từng năm.  
+- Biểu đồ xu hướng nếu có thể.  
+- Giọng văn chuyên nghiệp, giống phong cách báo cáo phân tích đầu tư.
+"""
 
     all_analyses.append(f"### 1. Phân tích Kết quả Kinh doanh\n{model.generate_content(prompt1).text}")
 
     print("   [2/4] Phân tích Bảng cân đối kế toán...")
     balance_df_str = financial_data_dict['balance_sheet'].to_string()
-    prompt2 = f"""Bạn là chuyên gia phân tích tài chính chuyên về ngành ngân hàng Việt Nam.  
-        Tôi sẽ cung cấp dữ liệu **Bảng cân đối kế toán (Balance Sheet)** của một ngân hàng thương mại:
+    prompt2 = f"""Bạn là chuyên gia phân tích tài chính chuyên về ngành chứng khoán Việt Nam.  
+Tôi sẽ cung cấp dữ liệu **Bảng cân đối kế toán (Balance Sheet)** của một công ty chứng khoán, gồm các cột:
 
-        {balance_df_str}
+{balance_df_str}
 
-        Hãy phân tích theo hướng:
-        1. **Cấu trúc tài sản**  
-        - Tỷ trọng cho vay khách hàng, đầu tư chứng khoán, và tiền gửi tại NHNN.  
-        - Xu hướng tăng trưởng tín dụng (cho vay) qua các năm.  
-        - Mức độ tập trung tín dụng – có dấu hiệu tăng rủi ro không?
+Hãy phân tích theo hướng:
+1. **Cơ cấu tài sản**  
+   - Tỷ trọng tài sản tài chính, cho vay margin, và đầu tư tự doanh.  
+   - Biến động các khoản đầu tư ngắn hạn và dài hạn qua các năm.  
+   - Mức độ tập trung vốn vào tự doanh hay hoạt động dịch vụ.
 
-        2. **Cấu trúc nguồn vốn**  
-        - Tỷ trọng tiền gửi khách hàng / tổng nguồn vốn.  
-        - Mức phụ thuộc vào vốn vay liên ngân hàng hoặc phát hành giấy tờ có giá.  
-        - Đánh giá tính ổn định của nguồn vốn huy động.
+2. **Cấu trúc nguồn vốn và đòn bẩy tài chính**  
+   - Tỷ lệ nợ phải trả / vốn chủ sở hữu.  
+   - Mức độ sử dụng vốn vay từ ngân hàng hoặc phát hành trái phiếu để cấp margin.  
+   - Rủi ro thanh khoản nếu thị trường biến động mạnh.
 
-        3. **Chất lượng tài sản & dự phòng rủi ro**  
-        - So sánh tăng trưởng cho vay và dự phòng rủi ro.  
-        - Tỷ lệ dự phòng / dư nợ cho vay (ước tính).  
-        - Có dấu hiệu nợ xấu tăng không?
+3. **Rủi ro đầu tư và danh mục tự doanh**  
+   - Nếu có dữ liệu chi tiết, đánh giá quy mô danh mục tự doanh và khả năng chịu lỗ.  
+   - Nhận xét về mức độ rủi ro so với quy mô vốn chủ.
 
-        4. **Thanh khoản và an toàn vốn**  
-        - Tỷ lệ vốn chủ sở hữu / tổng tài sản.  
-        - Xu hướng tăng/giảm vốn điều lệ.  
-        - Nhận xét khả năng duy trì an toàn vốn (CAR – nếu có dữ liệu).
+4. **Vốn chủ sở hữu và an toàn tài chính**  
+   - Xu hướng tăng vốn điều lệ, trích lập quỹ, và lợi nhuận giữ lại.  
+   - So sánh tăng trưởng vốn với tăng trưởng tổng tài sản.
 
-        5. **Kết luận tổng thể**  
-        - Cấu trúc tài chính an toàn hay rủi ro?  
-        - Ngân hàng đang trong giai đoạn mở rộng tín dụng, củng cố vốn hay thu hẹp bảng cân đối?
+5. **Kết luận tổng thể**  
+   - Cấu trúc tài chính an toàn / rủi ro / thận trọng.  
+   - Đánh giá khả năng chịu biến động thị trường.
 
-        Đầu ra mong muốn:
-        - Tóm tắt theo từng năm.  
-        - Biểu đồ hoặc mô tả xu hướng nếu có thể.  
-        - Giọng văn khách quan, chuyên nghiệp.
-    """
+Đầu ra mong muốn:
+- Bảng hoặc đoạn tóm tắt theo từng năm.  
+- Biểu đồ xu hướng nếu có thể.  
+- Giọng văn khách quan, chuyên nghiệp.
+"""
 
     all_analyses.append(f"### 2. Phân tích Bảng cân đối kế toán\n{model.generate_content(prompt2).text}")
 
     print("   [3/4] Phân tích Báo cáo lưu chuyển tiền tệ...")
     cash_flow_df_str = financial_data_dict['cash_flow'].to_string()
-    prompt3 = f"""Bạn là chuyên gia phân tích tài chính chuyên về ngân hàng.  
-        Tôi sẽ cung cấp dữ liệu **Báo cáo lưu chuyển tiền tệ (Cash Flow Statement)** của một ngân hàng thương mại:
+    prompt3 = f"""Bạn là chuyên gia phân tích tài chính chuyên về ngành chứng khoán Việt Nam.  
+Tôi sẽ cung cấp dữ liệu **Báo cáo lưu chuyển tiền tệ (Cash Flow Statement)** của một công ty chứng khoán, gồm các cột:
 
-        {cash_flow_df_str}
+{cash_flow_df_str}
 
-        Hãy phân tích theo hướng:
-        1. **Dòng tiền từ hoạt động kinh doanh (Operating Cash Flow – OCF)**  
-        - Xu hướng OCF qua các năm – dương hay âm?  
-        - Nếu âm, nguyên nhân là do tăng cho vay, giảm huy động, hay lợi nhuận kế toán không chuyển thành tiền?  
-        - OCF có ổn định không khi so với lợi nhuận sau thuế?
+Hãy phân tích theo hướng:
+1. **Dòng tiền từ hoạt động kinh doanh**  
+   - Xu hướng dòng tiền thuần từ hoạt động chính.  
+   - Mối quan hệ giữa dòng tiền và lợi nhuận kế toán – có chênh lệch lớn không?  
+   - Ảnh hưởng của các khoản cho vay margin và thu hồi vốn đầu tư.
 
-        2. **Dòng tiền đầu tư (Investing Cash Flow – ICF)**  
-        - Các khoản chi đầu tư chứng khoán, cơ sở vật chất, hoặc đầu tư dài hạn.  
-        - Ngân hàng đang mở rộng đầu tư hay thu hồi vốn?
+2. **Dòng tiền đầu tư (Investing Cash Flow)**  
+   - Chi ra cho hoạt động tự doanh và đầu tư chứng khoán.  
+   - Có xu hướng mở rộng danh mục đầu tư hay thu hồi vốn?  
+   - Nhận xét rủi ro nếu đầu tư lớn khi thị trường biến động.
 
-        3. **Dòng tiền tài chính (Financing Cash Flow – FCF)**  
-        - Phân tích nguồn huy động từ cổ phiếu, giấy tờ có giá, hoặc vay liên ngân hàng.  
-        - Xu hướng chi trả cổ tức và trả nợ.  
-        - Đánh giá sự phụ thuộc vào nguồn vốn bên ngoài.
+3. **Dòng tiền tài chính (Financing Cash Flow)**  
+   - Phân tích nguồn vốn đến từ vay ngân hàng, phát hành trái phiếu, tăng vốn chủ sở hữu.  
+   - Đánh giá khả năng duy trì thanh khoản và khả năng trả nợ vay.
 
-        4. **Khả năng tạo dòng tiền thật và thanh khoản**  
-        - So sánh OCF với lợi nhuận ròng.  
-        - Tiền cuối kỳ tăng hay giảm, có đảm bảo thanh khoản ngắn hạn không?  
-        - Nhận xét tính bền vững của dòng tiền.
+4. **Dòng tiền thuần và khả năng thanh khoản**  
+   - Tiền cuối kỳ tăng hay giảm qua các năm.  
+   - Dòng tiền có phản ánh đúng sức khỏe tài chính không?  
+   - Rủi ro nếu dòng tiền âm kéo dài trong bối cảnh thị trường chứng khoán suy yếu.
 
-        5. **Kết luận tổng thể**  
-        - Dòng tiền lành mạnh / trung bình / rủi ro.  
-        - Ngân hàng đang ở giai đoạn mở rộng, ổn định hay điều chỉnh bảng cân đối?
+5. **Kết luận tổng thể**  
+   - Dòng tiền lành mạnh / trung bình / rủi ro.  
+   - Công ty đang trong giai đoạn mở rộng, thu hồi hay điều chỉnh danh mục đầu tư?
 
-        Đầu ra mong muốn:
-        - Tóm tắt từng năm.  
-        - Giọng văn khách quan, chuyên nghiệp.
-        """
+Đầu ra mong muốn:
+- Bảng hoặc đoạn tóm tắt từng năm.  
+- Biểu đồ xu hướng nếu có thể.  
+- Giọng văn chuyên nghiệp, khách quan.
+"""
 
     all_analyses.append(f"### 3. Phân tích Lưu chuyển tiền tệ\n{model.generate_content(prompt3).text}")
 
@@ -272,7 +272,7 @@ def agent_analyze_financials(model, financial_data_dict: dict, technical_analysi
         previous_analyses = "\n\n".join(all_analyses)
         prompt4 = f"""
         Bạn là Chuyên viên Phân tích Đầu tư cao cấp, kết hợp cả phân tích cơ bản và kỹ thuật.
-        Nhiệm vụ của bạn là đưa ra một kết luận cuối cùng cho nhà đầu tư ngắn hạn (1-3 tháng) về cổ phiếu {symbol}.
+        Nhiệm vụ của bạn là đưa ra một kết luận cuối cùng cho nhà đầu tư lướt sóng (1 tuần - 3 tuần) về cổ phiếu {symbol}.
 
         **Phần 1: Các phân tích chi tiết về tài chính doanh nghiệp (Phân tích cơ bản):**
         {previous_analyses}
@@ -298,7 +298,7 @@ def agent_analyze_financials(model, financial_data_dict: dict, technical_analysi
             - **Tín hiệu Tích cực:** Xu hướng dài hạn, vùng hỗ trợ mạnh,...
             - **Tín hiệu Tiêu cực:** Vùng kháng cự mạnh, mẫu hình giá xấu,...
 
-        **4. Kết luận và Khuyến nghị (1-3 tháng):**
+        **4. Kết luận và Khuyến nghị (1 tuần - 3 tuần):**
            - **Kết hợp tất cả các yếu tố**, đưa ra đánh giá cuối cùng: Cổ phiếu này đang **HẤP DẪN**, **TRUNG LẬP**, hay **KHÔNG HẤP DẪN**.
            - **Giải thích rõ ràng** lý do cho khuyến nghị của bạn.
         """
@@ -389,11 +389,8 @@ def main(symbol: str):
 
     print(f"✅ Báo cáo đã được lưu tại: {output_path}")
 
-
-
-
 if __name__ == '__main__':
     # <<< THAY ĐỔI MÃ CỔ PHIẾU BẠN MUỐN PHÂN TÍCH TẠI ĐÂY >>>
     # Đảm bảo bạn có file "FPT_1D.csv" trong cùng thư mục
 
-    main("VPB")
+    main("DSC")

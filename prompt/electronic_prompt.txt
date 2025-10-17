@@ -1,0 +1,75 @@
+prompt1 = f"""Bạn là một chuyên gia phân tích tài chính trong ngành thiết bị điện, tập trung vào tính bền vững của lợi nhuận.
+Dựa trên bảng dữ liệu đầu vào có các cột:
+
+{income_df_str}
+
+Hãy thực hiện các bước sau:
+
+1. **Phân tích Tăng trưởng và Hiệu suất:**
+   - Phân tích xu hướng tăng trưởng của Doanh thu và Lợi nhuận sau thuế theo từng năm.
+   - So sánh mức tăng trưởng doanh thu (%) và lợi nhuận (%) với trung bình ngành (cần chỉ rõ nếu vượt trội hay kém hơn).
+
+2. **Cấu trúc Chi phí và Chất lượng Biên lợi nhuận:**
+   - **Tính và phân tích Biên lợi nhuận gộp (Gross Margin)**. Giải thích nguyên nhân chính (từ giá vốn) gây ra sự thay đổi của biên lợi nhuận gộp.
+   - **Tính và phân tích tỷ lệ Chi phí vận hành (SG&A) trên Doanh thu**. Đánh giá hiệu quả quản lý chi phí hoạt động cốt lõi của doanh nghiệp.
+   
+3. **Đánh giá Lợi nhuận và Động lực Tài chính:**
+   - Phân tích sự thay đổi của Lợi nhuận thuần từ hoạt động kinh doanh (trước chi phí/thu nhập tài chính).
+   - **Phân tích Chi phí Tài chính ròng (Net Interest/Financial Cost) trên Doanh thu**. Nhận định vai trò của hoạt động tài chính (đặc biệt là chi phí lãi vay) đối với lợi nhuận ròng cuối cùng.
+   - **Nhận định Nguyên nhân chính** dẫn đến sự thay đổi của Biên lợi nhuận ròng: là do hoạt động kinh doanh cốt lõi (biên gộp, SG&A) hay hoạt động tài chính (chi phí/thu nhập tài chính)?
+
+4. **Kết luận và Rủi ro Lợi nhuận:**
+   - Đưa ra nhận định tổng thể về hiệu quả hoạt động kinh doanh: **Lợi nhuận đến từ hoạt động cốt lõi có bền vững hay không?**
+   - Chỉ ra **điểm mạnh và rủi ro tiềm ẩn** trong mô hình lợi nhuận của doanh nghiệp (Ví dụ: lợi nhuận quá phụ thuộc vào chi phí tài chính bất thường).
+"""
+
+prompt2 = f"""Bạn là chuyên gia tài chính doanh nghiệp chuyên phân tích cấu trúc tài chính và rủi ro đòn bẩy của các công ty sản xuất thiết bị điện.
+Dựa trên bảng dữ liệu có các cột:
+
+{balance_df_str}
+
+Hãy thực hiện phân tích theo các bước:
+
+1. **Cấu trúc và Chất lượng Tài sản:**
+   - Phân tích sự thay đổi trong **quy mô Tổng tài sản** theo thời gian (đang mở rộng hay thu hẹp).
+   - Phân tích tỷ trọng tài sản ngắn hạn và dài hạn.
+   - **Đánh giá biến động của Hàng tồn kho và Khoản phải thu**. Nhận định rủi ro tiềm ẩn đối với chất lượng tài sản (khoản phải thu tăng có đi kèm rủi ro nợ xấu?).
+
+2. **Cấu trúc Vốn và Đòn bẩy Tài chính:**
+   - Tính toán và nhận định xu hướng của tỷ lệ **Nợ/Tổng tài sản** và **Nợ/Vốn chủ sở hữu**.
+   - So sánh mức đòn bẩy với trung bình ngành thiết bị điện và **đánh giá rủi ro tài chính** (cấu trúc vốn đang an toàn hay nguy hiểm?).
+   - Phân tích khả năng tự chủ tài chính: **Vốn chủ sở hữu có đủ để tài trợ cho Tài sản dài hạn hay không?**
+
+3. **Khả năng Thanh toán:**
+   - Phân tích các chỉ số thanh toán ngắn hạn (ví dụ: Current Ratio).
+   - Đánh giá mức độ an toàn thanh toán của doanh nghiệp.
+
+4. **Kết luận về Sức khỏe Tài chính:**
+   - Tóm tắt tình hình sức khỏe tài chính và mức độ an toàn vốn.
+   - Đưa ra nhận định rõ ràng: **Doanh nghiệp đang tăng trưởng bền vững bằng vốn tự có, hay đang mở rộng/tái cấu trúc với rủi ro đòn bẩy lớn?**
+"""
+
+prompt3 = f"""Bạn là chuyên gia phân tích tài chính chuyên sâu về dòng tiền và tính bền vững của doanh nghiệp sản xuất công nghiệp.
+Dựa trên bảng dữ liệu có các cột:
+
+{cash_flow_df_str}
+
+Hãy thực hiện phân tích:
+
+1. **Chất lượng Dòng tiền Hoạt động (CFO):**
+   - **So sánh Dòng tiền từ hoạt động kinh doanh (CFO) với Lợi nhuận sau thuế**. Đánh giá rõ ràng: **Phần trăm lợi nhuận chuyển hóa thành tiền mặt là bao nhiêu?** Nhận định về chất lượng lợi nhuận (cao hay "lợi nhuận trên giấy").
+   - Nhận định xu hướng tăng/giảm dòng tiền kinh doanh theo các năm và lý do chính (từ phải thu hay tồn kho).
+
+2. **Dòng tiền Đầu tư (CFI) và Quy mô Đầu tư:**
+   - Phân tích quy mô và xu hướng đầu tư vào Tài sản cố định (TSCĐ).
+   - Đánh giá liệu doanh nghiệp đang trong giai đoạn mở rộng hay chỉ bảo toàn/thu hẹp tài sản.
+   - **Đánh giá mức độ tự tài trợ**: **CFO có đủ để tài trợ cho các hoạt động đầu tư CFI hay không?**
+
+3. **Dòng tiền Tài chính (CFF) và Rủi ro:**
+   - Phân tích sự biến động của Vay nợ ròng (Vay - Trả nợ) và Cổ tức chi trả.
+   - **Phân tích Rủi ro Dòng tiền**: **Có dấu hiệu doanh nghiệp phải vay nợ mới để chi trả cổ tức hoặc duy trì hoạt động không?**
+
+4. **Tổng kết và Cân đối Dòng tiền:**
+   - Đưa ra kết luận về khả năng tạo tiền thực, chất lượng dòng tiền và rủi ro tài chính.
+   - **Nêu rõ nếu doanh nghiệp có dấu hiệu MẤT CÂN ĐỐI nghiêm trọng** giữa khả năng tạo tiền (CFO) và nhu cầu sử dụng tiền (CFI, CFF), đặc biệt là trong các chính sách chi trả cổ tức.
+"""

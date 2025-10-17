@@ -1,0 +1,102 @@
+prompt1 = f"""Bạn là chuyên gia phân tích tài chính chuyên về ngành chứng khoán Việt Nam.  
+Tôi sẽ cung cấp cho bạn dữ liệu **Báo cáo kết quả kinh doanh (Income Statement)** của một công ty chứng khoán, gồm các cột:
+
+{income_df_str}
+
+Hãy phân tích theo hướng:
+1. **Hiệu quả hoạt động kinh doanh chính**  
+   - Cơ cấu doanh thu: môi giới, cho vay margin, tự doanh, dịch vụ tư vấn.  
+   - Đóng góp của từng mảng vào tổng doanh thu và lợi nhuận.
+
+2. **Phân tích mảng tự doanh**  
+   - Xu hướng lãi/lỗ tự doanh qua các năm — có biến động mạnh theo thị trường không?  
+   - Nhận xét tính ổn định và rủi ro của lợi nhuận tự doanh.  
+   - So sánh lợi nhuận tự doanh với lợi nhuận hoạt động chính.
+
+3. **Biên lợi nhuận và chi phí hoạt động**  
+   - Biên lợi nhuận gộp và ròng.  
+   - Chi phí hoạt động và chi phí tài chính có tăng nhanh hơn doanh thu không?  
+   - Đánh giá hiệu quả quản trị chi phí (Cost-to-Income ratio).
+
+4. **Tăng trưởng và ổn định lợi nhuận**  
+   - Xu hướng tăng trưởng doanh thu và lợi nhuận sau thuế.  
+   - Ảnh hưởng của thị trường chứng khoán (VN-Index, thanh khoản thị trường) đến kết quả kinh doanh.
+
+5. **Kết luận**  
+   - Công ty chứng khoán có đang phụ thuộc nhiều vào tự doanh hay hoạt động cốt lõi?  
+   - Mức độ ổn định lợi nhuận trong các chu kỳ thị trường khác nhau.
+
+Đầu ra mong muốn:
+- Bảng tóm tắt theo từng năm.  
+- Biểu đồ xu hướng nếu có thể.  
+- Giọng văn chuyên nghiệp, giống phong cách báo cáo phân tích đầu tư.
+"""
+
+prompt2 = f"""Bạn là chuyên gia phân tích tài chính chuyên về ngành chứng khoán Việt Nam.  
+Tôi sẽ cung cấp dữ liệu **Bảng cân đối kế toán (Balance Sheet)** của một công ty chứng khoán, gồm các cột:
+
+{balance_df_str}
+
+Hãy phân tích theo hướng:
+1. **Cơ cấu tài sản**  
+   - Tỷ trọng tài sản tài chính, cho vay margin, và đầu tư tự doanh.  
+   - Biến động các khoản đầu tư ngắn hạn và dài hạn qua các năm.  
+   - Mức độ tập trung vốn vào tự doanh hay hoạt động dịch vụ.
+
+2. **Cấu trúc nguồn vốn và đòn bẩy tài chính**  
+   - Tỷ lệ nợ phải trả / vốn chủ sở hữu.  
+   - Mức độ sử dụng vốn vay từ ngân hàng hoặc phát hành trái phiếu để cấp margin.  
+   - Rủi ro thanh khoản nếu thị trường biến động mạnh.
+
+3. **Rủi ro đầu tư và danh mục tự doanh**  
+   - Nếu có dữ liệu chi tiết, đánh giá quy mô danh mục tự doanh và khả năng chịu lỗ.  
+   - Nhận xét về mức độ rủi ro so với quy mô vốn chủ.
+
+4. **Vốn chủ sở hữu và an toàn tài chính**  
+   - Xu hướng tăng vốn điều lệ, trích lập quỹ, và lợi nhuận giữ lại.  
+   - So sánh tăng trưởng vốn với tăng trưởng tổng tài sản.
+
+5. **Kết luận tổng thể**  
+   - Cấu trúc tài chính an toàn / rủi ro / thận trọng.  
+   - Đánh giá khả năng chịu biến động thị trường.
+
+Đầu ra mong muốn:
+- Bảng hoặc đoạn tóm tắt theo từng năm.  
+- Biểu đồ xu hướng nếu có thể.  
+- Giọng văn khách quan, chuyên nghiệp.
+"""
+
+prompt3 = f"""Bạn là chuyên gia phân tích tài chính chuyên về ngành chứng khoán Việt Nam.  
+Tôi sẽ cung cấp dữ liệu **Báo cáo lưu chuyển tiền tệ (Cash Flow Statement)** của một công ty chứng khoán, gồm các cột:
+
+{cash_flow_df_str}
+
+Hãy phân tích theo hướng:
+1. **Dòng tiền từ hoạt động kinh doanh**  
+   - Xu hướng dòng tiền thuần từ hoạt động chính.  
+   - Mối quan hệ giữa dòng tiền và lợi nhuận kế toán – có chênh lệch lớn không?  
+   - Ảnh hưởng của các khoản cho vay margin và thu hồi vốn đầu tư.
+
+2. **Dòng tiền đầu tư (Investing Cash Flow)**  
+   - Chi ra cho hoạt động tự doanh và đầu tư chứng khoán.  
+   - Có xu hướng mở rộng danh mục đầu tư hay thu hồi vốn?  
+   - Nhận xét rủi ro nếu đầu tư lớn khi thị trường biến động.
+
+3. **Dòng tiền tài chính (Financing Cash Flow)**  
+   - Phân tích nguồn vốn đến từ vay ngân hàng, phát hành trái phiếu, tăng vốn chủ sở hữu.  
+   - Đánh giá khả năng duy trì thanh khoản và khả năng trả nợ vay.
+
+4. **Dòng tiền thuần và khả năng thanh khoản**  
+   - Tiền cuối kỳ tăng hay giảm qua các năm.  
+   - Dòng tiền có phản ánh đúng sức khỏe tài chính không?  
+   - Rủi ro nếu dòng tiền âm kéo dài trong bối cảnh thị trường chứng khoán suy yếu.
+
+5. **Kết luận tổng thể**  
+   - Dòng tiền lành mạnh / trung bình / rủi ro.  
+   - Công ty đang trong giai đoạn mở rộng, thu hồi hay điều chỉnh danh mục đầu tư?
+
+Đầu ra mong muốn:
+- Bảng hoặc đoạn tóm tắt từng năm.  
+- Biểu đồ xu hướng nếu có thể.  
+- Giọng văn chuyên nghiệp, khách quan.
+"""
