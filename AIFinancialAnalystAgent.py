@@ -7,7 +7,8 @@ from getData import fetch_from_vnstock
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import os
-
+from TechnicalIndicator import detect_big_money
+import numpy as np
 # Thư viện mới để vẽ biểu đồ và xử lý ảnh
 import matplotlib.pyplot as plt
 import io
@@ -21,7 +22,7 @@ def configure_api():
     """
     try:
         # Thay thế "YOUR_API_KEY" bằng khóa API thực của bạn
-        api_key = "YOUR_API_KEY"
+        api_key = "AIzaSyCrCqk-h91AKpQLm0r1qQ89s1ZVg0VxZOU"
         if not api_key or api_key == "YOUR_API_KEY":
             print("ERROR: GOOGLE_API_KEY is not set or is a placeholder.")
             print("Please set your API key to proceed.")
@@ -72,70 +73,109 @@ def agent_gather_data(symbol: str) -> dict:
 # =================================================================
 def agent_technical_analysis(model, symbol: str) -> str:
     """
-    Agent 1.5: Technical Analyst (Image-based).
-    Reads historical price data, generates a chart, and sends the image for analysis.
+    Agent 1.5: Technical Analyst (Image-based + MCDX).
+    Reads price data from CSV, plots Price, Volume, and MCDX,
+    and sends chart to Gemini AI for detailed analysis.
     """
     print(f"📉 [Technical Agent] Đang tạo và phân tích biểu đồ kỹ thuật cho {symbol}...")
+
     end = datetime.now()
     start = end - relativedelta(years=5)
     fetch_from_vnstock(symbol,"1D", start, end)
     file_name = f"price_data/{symbol}_1D.csv"
+
     try:
-        # 1. Đọc và chuẩn bị dữ liệu
+        # 1️⃣ Read & prepare data
         price_df = pd.read_csv(file_name)
         price_df['datetime'] = pd.to_datetime(price_df['datetime'])
-        price_df = price_df.sort_values('datetime', ascending=True) # Sắp xếp từ cũ đến mới để vẽ biểu đồ
+        price_df = price_df.sort_values('datetime', ascending=True)
 
-        # 2. Vẽ biểu đồ
-        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 8), sharex=True, gridspec_kw={'height_ratios': [3, 1]})
-        fig.suptitle(f'Biểu đồ Giá và Khối lượng của {symbol} (5 năm)', fontsize=16)
+        # 2️⃣ Add MCDX smart money data
+        price_df = detect_big_money(price_df)
 
-        # Biểu đồ giá
+        # 3️⃣ Create the chart
+        fig, (ax1, ax2, ax3) = plt.subplots(
+            3, 1, figsize=(12, 10), sharex=True,
+            gridspec_kw={'height_ratios': [3, 1, 1]}
+        )
+        fig.suptitle(f'{symbol} — Giá, Khối lượng & MCDX (5 năm)', fontsize=16)
+
+        # === PRICE CHART ===
         ax1.plot(price_df['datetime'], price_df['close'], label='Giá đóng cửa', color='blue')
         ax1.set_ylabel('Giá (VND)')
-        ax1.grid(True)
         ax1.legend()
+        ax1.grid(True, alpha=0.3)
 
-        # Biểu đồ khối lượng
-        ax2.bar(price_df['datetime'], price_df['volume'], label='Khối lượng', color='gray', alpha=0.7)
+        # === VOLUME CHART ===
+        ax2.bar(price_df['datetime'], price_df['volume'], label='Khối lượng', color='gray', alpha=0.6)
         ax2.set_ylabel('Khối lượng')
-        ax2.set_xlabel('Ngày')
-        ax2.grid(True)
-        
+        ax2.legend()
+        ax2.grid(True, alpha=0.3)
+
+        # === MCDX CHART ===
+        ax3.set_facecolor("#f9f9f9")
+
+        # Green base background
+        ax3.bar(price_df['datetime'], 20, color='green', width=0.8, alpha=0.15)
+
+        # Retailers (green)
+        ax3.bar(price_df['datetime'], price_df['RSI_Retailer'], color='green', width=0.8, alpha=0.6, label='Retailers')
+
+        # Hot Money (yellow)
+        ax3.bar(price_df['datetime'], price_df['RSI_HotMoney'], color='yellow', width=0.8, alpha=0.6, label='Hot Money')
+
+        # Bankers (red/fuchsia depending on MA)
+        colors = np.where(price_df['RSI_Banker'] >= price_df['Banker_MA'], 'red', 'fuchsia')
+        ax3.bar(price_df['datetime'], price_df['RSI_Banker'], color=colors, width=0.8, alpha=0.8, label='Bankers')
+
+        # Banker MA line (black)
+        ax3.plot(price_df['datetime'], price_df['Banker_MA'], color='black', linewidth=1.2, label='Banker MA')
+
+        # Dashed levels (5, 10, 15, 20)
+        for level in [5, 10, 15, 20]:
+            ax3.axhline(y=level, color="#AD34CB", linestyle="--", linewidth=1, alpha=0.8)
+
+        ax3.set_ylim(0, 22)
+        ax3.set_ylabel('MCDX')
+        ax3.legend(loc="upper left")
+        ax3.grid(True, alpha=0.2)
+
         plt.tight_layout(rect=[0, 0, 1, 0.96])
 
-        # 3. Lưu biểu đồ vào bộ nhớ đệm (in-memory buffer)
+        # 4️⃣ Save to buffer
         buf = io.BytesIO()
         plt.savefig(buf, format='png')
         buf.seek(0)
-        
-        # 4. Tạo đối tượng hình ảnh để gửi cho API
+
         img = Image.open(buf)
         plt.show()
-        #plt.close(fig) # Đóng biểu đồ để giải phóng bộ nhớ
 
-        # 5. Tạo prompt mới và gửi cho AI cùng với hình ảnh
+        # 5️⃣ Gemini AI analysis prompt
         prompt = f"""
-        Bạn là một Chuyên viên Phân tích Kỹ thuật cao cấp. Dựa vào hình ảnh biểu đồ giá và khối lượng trong 5 năm của cổ phiếu {symbol} được cung cấp, hãy đưa ra một phân tích chi tiết:
+        Bạn là một Chuyên viên Phân tích Kỹ thuật cao cấp. Dựa vào hình ảnh biểu đồ giá, khối lượng, và MCDX trong 5 năm của cổ phiếu {symbol}, hãy đưa ra một phân tích chi tiết:
 
-        1.  **Xu hướng dài hạn (Multi-year Trend):** Xác định xu hướng chính trong toàn bộ giai đoạn (tăng, giảm, đi ngang).
-        2.  **Các chu kỳ chính:** Cổ phiếu đã trải qua những chu kỳ tăng/giảm giá lớn nào?
-        3.  **Vùng hỗ trợ/kháng cự dài hạn:** Xác định các vùng giá quan trọng đã đóng vai trò là hỗ trợ hoặc kháng cự mạnh trong quá khứ.
-        4.  **Phân tích khối lượng:** Có những giai đoạn nào khối lượng giao dịch tăng đột biến không? Nó tương quan với biến động giá như thế nào? (Ví dụ: khối lượng lớn tại đỉnh/đáy).
-        5.  **Kết luận tổng quan:** Dựa trên bức tranh toàn cảnh, vị thế hiện tại của cổ phiếu là gì (đang ở đầu, giữa hay cuối một chu kỳ)? Có tiềm năng hay rủi ro gì lớn trong dài hạn không?
+        1. **Xu hướng dài hạn (Multi-year Trend):** Xác định xu hướng chính trong toàn bộ giai đoạn (tăng, giảm, đi ngang).
+        2. **Các chu kỳ chính:** Cổ phiếu đã trải qua những chu kỳ tăng/giảm giá lớn nào?
+        3. **Vùng hỗ trợ/kháng cự dài hạn:** Xác định các vùng giá quan trọng trong quá khứ.
+        4. **Phân tích khối lượng và MCDX:** 
+           - Giai đoạn nào có sự tích lũy của dòng tiền lớn (Bankers)?
+           - Khi Hot Money tăng, giá phản ứng ra sao?
+           - Có giai đoạn phân phối mạnh nào (Bankers rút vốn) không?
+        5. **Kết luận tổng quan:** Vị thế hiện tại của cổ phiếu trong chu kỳ là gì (đầu, giữa, hay cuối)? Tiềm năng hoặc rủi ro dài hạn?
         """
-        
+
         print(f"✅ [Technical Agent] Đã tạo biểu đồ, đang gửi cho AI phân tích...")
         response = model.generate_content([prompt, img])
-        
-        buf.close() # Đóng buffer
+
+        buf.close()
         print(f"✅ [Technical Agent] Đã hoàn thành phân tích kỹ thuật cho {symbol}.")
         return response.text
 
     except FileNotFoundError:
-        error_message = f"⚠️ [Technical Agent] Không tìm thấy file dữ liệu giá: '{file_name}'. Bỏ qua bước phân tích kỹ thuật."
+        error_message = f"⚠️ [Technical Agent] Không tìm thấy file dữ liệu giá: '{file_name}'."
         print(error_message)
         return error_message
+
     except Exception as e:
         error_message = f"❌ [Technical Agent] Lỗi khi phân tích kỹ thuật cho {symbol}: {e}"
         print(error_message)
@@ -393,4 +433,4 @@ if __name__ == '__main__':
     # <<< THAY ĐỔI MÃ CỔ PHIẾU BẠN MUỐN PHÂN TÍCH TẠI ĐÂY >>>
     # Đảm bảo bạn có file "FPT_1D.csv" trong cùng thư mục
 
-    main("DSC")
+    main("SHS")
