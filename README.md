@@ -49,4 +49,7 @@ Create a .env file in the project root and add:
 GENAI_API_KEY="YOUR_API_KEY"
 SERP_API_KEY="YOUR_API_KEY"
 ```
+### 3. Usage
+
+Open the project folder in VS Code, then run `AINewsAgent.py` to collect news URLs and `AIFinancialAnalystAgent.py` to analyze financial data. Simply change the stock symbol inside `main("STOCK")` at the bottom of each file to analyze a different company.
 
